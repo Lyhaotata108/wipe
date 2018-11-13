@@ -14,10 +14,6 @@ module.exports=function(grunt){
 				src:"src/js/wipe.js",
 				dest:"dist/wipe-<%= pkg.version %>.min.js"
 			},
-			// build2:{
-			// 	src:"src/js/jquery.js",
-			// 	dest:"build/jquery-<%= pkg.version %>.min.js"
-			// }
 		},
 		cssmin:{
 			options:{
@@ -36,14 +32,33 @@ module.exports=function(grunt){
 			
 		},
 		clean:{
-				dest:["dist/*"]
-			},
+			dest:['dist/*','sample/js/*']
+		},
+
 		jshint:{
 			test:["src/js/jquery.js"],
 			options:{
 			       jshintrc:".jshintrc"	
 			}
 		}
+		copy:{
+			js:{
+			expand:true,
+			cwd:'dest/js/',
+			src:'*.min.js',
+			dest:'sample/js/'
+			}
+		},
+
+		// replace:{
+		// 	example:{
+		// 		src:["sample/index.html"],
+		// 		overwrite:true,
+		// 		replacements[{
+		// 			// from:/.min.js/g
+		// 		}]
+		// 	}
+		// }
 
 	});
 	//告诉grunt需要使用插件
@@ -51,7 +66,9 @@ module.exports=function(grunt){
 	grunt.loadNpmTasks("grunt-contrib-cssmin");
 	grunt.loadNpmTasks("grunt-contrib-clean");
 	grunt.loadNpmTasks("grunt-contrib-jshint");
+	grunt.loadNpmTasks("grunt-contrib-copy");
+	grunt.loadNpmTasks("grunt-contrib-replace");
 	//告诉grunt当我们输入grunt命令后需要做些
 	//什么，有先后顺序
-	grunt.registerTask("default",["clean","jshint","uglify"]);
+	grunt.registerTask("default",["clean","jshint","cssmin","uglify","copy"]);
 };
