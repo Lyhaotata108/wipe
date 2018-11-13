@@ -3,7 +3,7 @@ var context= cas.getContext("2d");
 var _w = cas.width,_h = cas.height;
 var pox = 0;
 var poY = 0;
-var radius = 20;
+var radius = 30;
 var insMouseDown=false;
 var att=0;
 // 表示鼠标的状态，是否按下，默认为未按下false，按下true生成画布上的遮罩，默认为颜色#666
@@ -11,7 +11,7 @@ var att=0;
 //device 保存设备类型，如果是移动端则为true，PC端为false
 var device=(/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera|mini/i.test(navigator.userAgent.toLowerCase()));
 console.log(device);
-var clickEvtName=device ? "touchmove":"mousedown";
+var clickEvtName=device ? "touchstart":"mousedown";
 var moveEviName=device? "touchmove":"mousemove";
 var endEvtName=device?"touchend":"mouseup";
 function drawRect(context){
@@ -40,9 +40,29 @@ function drawLine(context,x1,y1,x2,y2){
 	context.stroke();
 	context.restore();
 }
-function fn2(context,pox,poY){
-	var str =arguments.length;
-	console.log(str);
+function drawT(context,x1,y1,x2,y2){
+	if (arguments.length==3) {
+		context.save();
+		context.beginPath();
+		context.arc(x1,y1,radius,0,2*Math.PI);
+		context.fillStyle = "red";
+		context.fill();
+		context.stroke();
+		// 调用的是画点功能
+		
+	}else if(arguments.length==5){
+		// 调用的是画线功能
+		context.save();
+		context.lineCap="round";
+		context.beginPath();
+		context.moveTo(x1,y1);
+		context.lineTo(x2,y2);
+		context.lineWidth=radius*2;
+		context.stroke();
+		context.restore();
+	}else{
+		return false;
+	}
 }
 //在canvas画布上监听自定义事件"mousedown"，调用drawPoint函数
 cas.addEventListener(clickEvtName,function(evt){
@@ -51,7 +71,7 @@ cas.addEventListener(clickEvtName,function(evt){
 	//获取鼠标在视口的坐标，传递参数到drawPoint
 	 pox=device ? event.touches[0].clientX : event.clientX;
 	poY =device ? event.touches[0].clientY : event.clientY;
-	drawPoint(context,pox,poY);
+	drawT(context,pox,poY);
 
 },false);
 // cas.addEventListener("touchstart",function(evt){
@@ -70,7 +90,7 @@ cas.addEventListener(moveEviName,function(evt){
 		var moveX =device ? event.touches[0].clientX : event.clientX;
 		var moveY =device ?  event.touches[0].clientY : event.clientY;
 		// drawPoint(context,pox ,poY);	
-		drawLine(context,pox,poY,moveX,moveY);
+		drawT(context,pox,poY,moveX,moveY);
 		pox=moveX;
 		poY=moveY;
 	}
@@ -120,5 +140,4 @@ window.onload = function(){
 	drawRect(context);
 	drawPoint(context);
 	// drawPoint(context);
-	fn2(context,pox,poY);
 };
