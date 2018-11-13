@@ -95,7 +95,6 @@ cas.addEventListener(moveEviName,function(evt){
 		poY=moveY;
 	}
 },false);  
-
 // function fn1(evt){
 // 	if (insMouseDown==true){
 // 		var event = evt || window.event;
