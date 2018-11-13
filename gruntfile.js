@@ -42,13 +42,9 @@ module.exports=function(grunt){
 			}
 		}
 		copy:{
-			js:{
-			expand:true,
-			cwd:'dest/js/',
-			src:'*.min.js',
-			dest:'sample/js/'
-			}
+			js:{expand:true, cwd:'dist/js/',src:'*.min.js',dest:'sample/js/'}
 		},
+
 
 		// replace:{
 		// 	example:{
