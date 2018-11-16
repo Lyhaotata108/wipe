@@ -1,7 +1,7 @@
 {
   "sub":true,
   "boss":true,
-  "curly":"true",
+  "curly":true,
   "eqeqeq":true,
   "eqnull":true
 }
