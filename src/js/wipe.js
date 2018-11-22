@@ -6,7 +6,7 @@ function Wipe(obj){
 	this.conID=obj.id;
 	this.cas = document.getElementById(this.conID);
 	this.context= cas.getContext("2d");
-	this._w = obj.width,
+	this._w = obj.width;
 	this._h = obj.height;
 	this.coverType=obj.coverType; //覆盖的是颜色还是图
 	this.color=obj.color||"#666";  //覆盖的颜色
@@ -20,12 +20,8 @@ function Wipe(obj){
 	this.att=0;
 	this.device=(/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera|mini/i.test(navigator.userAgent.toLowerCase()));
 	console.log(this.device);
-	this.clickEvtName=this.device ? "touchstart":"mousedown";
-	this.moveEviName=this.device? "touchmove":"mousemove";
-	this.endEvtName=this.device?"touchend":"mouseup";
 	this.drawRect(); 
 	this.Box();
-	// this.juLi();
 	this.callback=obj.callback;
 }
 // 画点和画线函数
@@ -54,14 +50,15 @@ Wipe.prototype.drawT=function(x1,y1,x2,y2){
 	}else{
 		return false;
 	}
-}
+};
 // 清除画布
 Wipe.prototype.clearRect=function(){
 	this.context.clearRect(0,0,this._w,this._h);
-}
+};
 // 获取透明点占整个画布的百分比
 Wipe.prototype.getTransparencyPercent=function(){
 		var t=this.context.getImageData(0,0,this._w,this._h);
+		console.log(t);
 		for (var i = 0; i < t.data.length; i+=4) {
 				var c=t.data[i+3];
 				if (c===0) {
@@ -72,14 +69,14 @@ Wipe.prototype.getTransparencyPercent=function(){
 		this.percent=(this.att/(this._w*this._h))*100;
 		// console.log(percent);
 		console.log("占总面积"+Math.ceil(this.percent)+"%");
-		return this.percent.toFixed(2); //截取小数点两位
-}
+		return (this.att/(this._w*this._h)*100).toFixed(2);//截取小数点两位
+};
 Wipe.prototype.drawRect=function(){
-	if(this.coverType=="color"){
+	if(this.coverType==="color"){
 	this.context.fillStyle=this.color;
 	this.context.fillRect(0,0,this._w,this._h);
 	this.context.globalCompositeOperation = "destination-out";
-	}else if(this.coverType=="image"){
+	}else if(this.coverType==="image"){
 	// 将imgUrl指定的图片填充画布、
 		var that = this;
 		var imgs = new Image();
@@ -91,36 +88,52 @@ Wipe.prototype.drawRect=function(){
 		}
 	}
 	
-}
+};
 //device 保存设备类型，如果是移动端则为true，PC端为false
 Wipe.prototype.Box=function(){
 	var that=this;
 	console.log(this);
-		this.cas.addEventListener(this.clickEvtName,function(evt){
+	that.clickEvtName=that.device ? "touchstart":"mousedown";
+	that.moveEviName=that.device? "touchmove":"mousemove";
+	that.endEvtName=that.device?"touchend":"mouseup";
+		var allLeft = this.cas.offsetLeft;
+		console.log(allLeft);
+		var allTop = this.cas.offsetTop;
+		var currentObj = this.cas;
+		while(currentObj = currentObj.offsetParent){
+			allLeft += currentObj.offsetLeft;
+			allTop += currentObj.offsetTop;
+		}
+		this.cas.addEventListener(that.clickEvtName,function(evt){
 		var event = evt || window.event;
 		that.insMouseDown=true;
+		var sLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+		var sTop = document.documentElement.scrollTop || document.body.scrollTop;
 		//获取鼠标在视口的坐标，传递参数到drawPoint
-		 that.pox=that.device ? event.touches[0].clientX : event.clientX;
-		that.poY =that.device ? event.touches[0].clientY : event.clientY;
+		 that.pox=that.device ? event.touches[0].clientX-allLeft+sLeft : event.clientX-allLeft+sLeft;
+		that.poY =that.device ? event.touches[0].clientY-allTop+sTop : event.clientY-allTop+sTop;
 		that.drawT(that.pox ,that.poY);	
 	},false);
-	this.cas.addEventListener(this.moveEviName,function(evt){
+	this.cas.addEventListener(that.moveEviName,function(evt){
+		var sLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+// 	//获取浏览器左滚动的距离
+		var sTop = document.documentElement.scrollTop || document.body.scrollTop;
 	if (that.insMouseDown===true){
 		var event = evt || window.event;
 		event.preventDefault();
 		//获取手指在视口的坐标，传递参数到drawPoint
-		that.moveX =that.device ? event.touches[0].clientX : event.clientX;
-		that.moveY =that.device ?  event.touches[0].clientY : event.clientY;
+		that.moveX =that.device ? event.touches[0].clientX-allLeft+sLeft : event.clientX-allLeft+sLeft;
+		that.moveY = that.device ? event.touches[0].clientY-allTop+sTop : event.clientY-allTop+sTop;
 		// drawPoint(context,pox ,poY);	
 		that.drawT(that.pox,that.poY,that.moveX,that.moveY);
 		that.pox=that.moveX;
 		that.poY=that.moveY;
 		}
 	},false);
-	this.cas.addEventListener(this.endEvtName,function(evt){
+	this.cas.addEventListener(that.endEvtName,function(evt){
 	// 还原insMouseDown为false
 	that.insMouseDown=false;
-	var percent =that.getTransparencyPercent();
+	var percent =that.getTransparencyPercent(that.context);
 	// 调用同名的全局函数
 	that.callback.call(null,percent);
 	if (percent>that.transpercent){
@@ -129,6 +142,4 @@ Wipe.prototype.Box=function(){
 	}
 	
 	},false); 
-}
-
-
+};
